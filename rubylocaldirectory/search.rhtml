@@ -1,0 +1,135 @@
+#!/usr/bin/eruby 
+<%
+begin
+
+require 'net/http' 
+ERuby.import('header.rhtml')
+
+qs = ENV['QUERY_STRING']
+qf={}
+for f in qs.split("&")
+	s = f.split("=")
+	qf[s[0]] = s[1]
+end
+
+if(qf['what'] != nil && qf['what'] != 0)
+	what = URI.unescape(qf['what'])
+end
+
+if(qf['type'] != nil && qf['type'] != 0)
+	type = URI.unescape(qf['type'])
+else
+	type = ""
+end
+
+if(qf['where'] != nil && qf['where'] != 0)
+	where = URI.unescape(qf['where'])
+else
+	where = Site_Where
+end
+
+if(qf['page'] != nil && qf['page'] != 0)
+	page = URI.unescape(qf['page'])
+else
+	page = "1"
+end
+
+if(qf['rpp'] != nil && qf['rpp'] != 0)
+	rpp = URI.unescape(qf['rpp'])
+else
+	rpp = "20"
+end
+
+if(qf['sort'] != nil && qf['sort'] != 0)
+	sort = URI.unescape(qf['sort'])
+else
+	sort = "dist"
+end
+%>
+<div class="span14">
+
+  	<div class="row">
+
+		<table cellpadding="5" cellspacing="5" with="500" align="center" class="zebra-striped">
+			<tbody>
+	
+				<%	
+				rformat='json'
+				placement=''
+				hasoffers=''
+				histograms=''
+				i=''
+				
+				cg = CityGridPlaces.new()
+				pl = cg.srchplaceswhere(what,type,where,page,rpp,sort,rformat,placement,hasoffers,histograms,i,Publisher_Code)
+				
+				h = JSON.parse(pl)
+	
+				l = h['results']['locations']
+			
+				l.each do|location|
+
+					rating = location['rating']
+					
+					id = location['id']
+
+					featured = location['featured']
+					featured = location['featured']
+					public_id = location['public_id']
+					name = location['name']
+					
+					city = location['address']['city']
+					state = location['address']['state']
+					street = location['address']['street']
+					postal_code = location['address']['postal_code']
+					
+					neighborhood = location['neighborhood']
+					latitude = location['latitude']
+					longitude = location['longitude']
+					distance = location['distance']
+					image = location['image']
+					phone_number = location['phone_number']
+					fax_number = location['fax_number']
+					rating = location['rating']
+					tagline = location['tagline']
+					profile = location['profile']
+					website = location['website']
+					has_video = location['has_video']
+					has_offers = location['has_offers']
+					offers = location['offers']
+					
+					sample_categories = location['sample_categories']
+					impression_id = location['impression_id']
+					expansion  = location['expansion']	
+
+					%>
+					<tr>
+						<td align="left">
+					        <address>
+					            <strong><%= name %></strong><br />
+					            <%= street %><br />
+					            <%= city %>, <%= state %><br />
+					         </address>							
+						</td>
+						<td align="left" valign="middle" width="7%" style="padding-top: 40px;">
+							<a href="detail.rhtml?id=<%=id%>&what=<%= what %>&where=<%= where %>" class="btn small primary">Detail</a>
+						</td>
+					</tr>
+
+					<%
+				end
+				%>
+
+			<tbody>
+		</table>
+	
+	</div>      
+	
+</div>
+    
+<%
+rescue Exception => ex
+	print "An error of type #{ex.class} happened, message is #{ex.message}"
+end
+ERuby.import('footer.rhtml')
+%>

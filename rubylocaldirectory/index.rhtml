@@ -1,0 +1,116 @@
+#!/usr/bin/eruby 
+<%
+require 'net/http' 
+ERuby.import('header.rhtml')
+       
+json_file = '/var/www/html/system/business-categories-datastore.txt'
+
+f = File.open(json_file, 'r')
+json = f.readlines.to_s
+
+h = JSON.parse(json)
+whatH = Array.new
+
+h.each do|Business|
+	whatH.push Business['Name']
+end
+what = whatH[rand(whatH.length)]
+%>
+<div class="span14">
+
+  	<div class="row">
+
+		<div class="hero-unit">
+
+			<h2><%= Site_Name %></h2>
+			<p>I needed a project to learn more about the <a href="http://developer.citygridmedia.com">CityGrid APIs</a>, so using <a href="http://twitter.github.com/bootstrap/">Twitter Bootstrap</a>, I built a prototype of a local business directory. </p>
+			<p><a class="btn primary large" href="/about.rhtml">Learn more &raquo;</a></p>
+			
+			
+		</div>
+
+		<table cellpadding="5" cellspacing="5" with="500" align="center" class="zebra-striped">
+			<tbody>
+	
+				<%	
+				type='' 
+				where = Site_Where
+				page = '1'
+				rpp = '20'
+				sort = 'dist'
+				rformat='json'
+				placement=''
+				hasoffers=''
+				histograms=''
+				i=''
+				
+				cg = CityGridPlaces.new()
+				pl = cg.srchplaceswhere(what,type,where,page,rpp,sort,rformat,placement,hasoffers,histograms,i,Publisher_Code)
+				
+				h = JSON.parse(pl)
+	
+				l = h['results']['locations']
+			
+				l.each do|location|
+
+					rating = location['rating']
+					
+					id = location['id']
+
+					featured = location['featured']
+					featured = location['featured']
+					public_id = location['public_id']
+					name = location['name']
+					
+					city = location['address']['city']
+					state = location['address']['state']
+					street = location['address']['street']
+					postal_code = location['address']['postal_code']
+					
+					neighborhood = location['neighborhood']
+					latitude = location['latitude']
+					longitude = location['longitude']
+					distance = location['distance']
+					image = location['image']
+					phone_number = location['phone_number']
+					fax_number = location['fax_number']
+					rating = location['rating']
+					tagline = location['tagline']
+					profile = location['profile']
+					website = location['website']
+					has_video = location['has_video']
+					has_offers = location['has_offers']
+					offers = location['offers']
+					
+					sample_categories = location['sample_categories']
+					impression_id = location['impression_id']
+					expansion  = location['expansion']	
+
+					%>
+					<tr>
+						<td align="left">
+					        <address>
+					            <strong><%= name %></strong><br />
+					            <%= street %><br />
+					            <%= city %>, <%= state %><br />
+					         </address>							
+						</td>
+						<td align="left" valign="middle" width="7%" style="padding-top: 40px;">
+							<a href="detail.rhtml?id=<%=id%>&what=<%= what %>&where=<%= where %>" class="btn small primary">Detail</a>
+						</td>
+					</tr>
+
+					<%
+				end
+				%>
+
+			<tbody>
+		</table>
+	
+	</div>      
+	
+</div>
+    
+<%
+ERuby.import('footer.rhtml')
+%>
